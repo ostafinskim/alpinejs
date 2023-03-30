@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Memory Game</title>
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body>
+<!-- navbar goes here -->
+<nav class="bg-gray-100">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex justify-between">
+        <div class="flex space-x-4">
+          <!-- primary nav -->
+          <div class="hidden md:flex items-center space-x-1">
+            <a href="../data-binding.html" class="py-5 px-3 text-gray-700 hover:text-gray-900">Data Binding</a>
+          </div>
+          <div class="hidden md:flex items-center space-x-1">
+            <a href="../state.html" class="py-5 px-3 text-gray-700 hover:text-gray-900">State</a>
+          </div>
+          <div class="hidden md:flex items-center space-x-1">
+            <a href="../two-way-binding.html" class="py-5 px-3 text-gray-700 hover:text-gray-900">Two way data-binding</a>
+          </div>
+          <div class="hidden md:flex items-center space-x-1">
+            <a href="../todo.html" class="py-5 px-3 text-gray-700 hover:text-gray-900">Todo app</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- mobile menu -->
+    <div class="mobile-menu hidden md:hidden">
+      <a href="#" class="block py-2 px-4 text-sm hover:bg-gray-200">Features</a>
+      <a href="#" class="block py-2 px-4 text-sm hover:bg-gray-200">Pricing</a>
+    </div>
+  </nav>
+
+    <!-- Memory Game -->
+    <div x-data="game()" class="px-10 flex items-center min-h-screen">
+        <h1 class="fixed top-0 right-0 p-10 font-bold text-3xl">
+            <span x-text="points"></span>
+            <span>pts</span>
+        </h1>
+
+        <div class="flex-1 grid grid-cols-4 gap-10">
+            <template x-for="card in cards">
+                <div class="w-full h-full">
+                    <button x-show="! card.cleared"
+                            :style="'background: ' + (card.flipped ? card.color : '#999')"
+                            :disabled="flippedCards.length >= 2"
+                            class="w-full h-32"
+                            @click="flipCard(card)"
+                    >
+                    </button>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <div 
+        x-data="{ show: false, message: ''}"
+        x-show.transition.opacity="show"
+        x-message="message"
+        @flash.window="message = $event.detail.message, show = true; setTimeout(() => show = false, 1000)"
+        class="fixed bottom-0 right-0 bg-green-500 text-white p-2 mb-4 rounded"
+        >
+        <span x-text="message" class="pr-4"></span>
+    </div>
+
+    <script>
+        function pause(ms = 500) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function flash(message) {
+            window.dispatchEvent(new CustomEvent('flash', {
+                detail: { message }
+            }))
+        }
+
+        function game() {
+            return {
+                cards: [
+                    { color: 'green', flipped: false, cleared: false },
+                    { color: 'red', flipped: false, cleared: false },
+                    { color: 'blue', flipped: false, cleared: false },
+                    { color: 'yellow', flipped: false, cleared: false },
+                    { color: 'green', flipped: false, cleared: false },
+                    { color: 'red', flipped: false, cleared: false },
+                    { color: 'blue', flipped: false, cleared: false },
+                    { color: 'yellow', flipped: false, cleared: false },
+                ].sort(() => Math.random() - 0.5),
+
+                get flippedCards() {
+                    return this.cards.filter(card => card.flipped);
+                },
+
+                get clearedCards() {
+                    return this.cards.filter(card => card.cleared);
+                },
+                get remainingCards() {
+                    return this.cards.filter(card => ! card.cleared);
+                }
+                ,
+                get points() {
+                    return this.clearedCards.length
+                },
+
+                async flipCard(card) {
+                    if (this.flippedCards.length === 2) {
+                        return;
+                    }
+
+                    card.flipped = ! card.flipped
+                    
+                    if (this.flippedCards.length === 2) {
+                        if(this.hasMatch()) {
+                            flash(`You've found a match!`)
+                            await pause();
+
+                            this.flippedCards.forEach(card => card.cleared = true);
+
+                            if (! this.remainingCards.length) {
+                                flash('Nice work!')
+                            }
+                        }
+                        await pause();
+
+                        this.flippedCards.forEach(card => card.flipped = false);
+                    }
+                },
+
+                hasMatch() {
+                    return this.flippedCards[0]['color'] === this.flippedCards[1]['color']
+                }
+            };
+        }
+    </script>
+</body>
+</html>
