@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+    <!-- <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet" /> -->
+    <title>State</title>
+    <style>
+        .active {
+            background: red;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <a href="/index.html">Back to home</a>
+
+    <div x-data="{ show: false }">
+        <button @click="show = ! show" x-text="(show ? 'Hide' : 'Show')">Toggle</button>
+        <h1 x-show="show">Navigation</h1>
+        <nav x-show="show">
+            <a href="#">Link</a>
+            <a href="#">Link</a>
+            <a href="#">Link</a>
+            <a href="#">Link</a>
+        </nav>
+    </div>
+
+
+    <h1>Tabs</h1>
+    <div x-data="{ currentTab: 'first' }">
+        <button @click="currentTab = 'first'" :class="{'active' : currentTab === 'first'}">First</button>
+        <button @click="currentTab = 'second'" :class="{'active' : currentTab === 'second'}">Second</button>
+        <button @click="currentTab = 'third'" :class="{'active' : currentTab === 'third'}">Third</button>
+
+        <div style="border: 1px dotted gray">
+            <div x-show="currentTab === 'first'">
+                <p>First tab</p>
+            </div>
+            <div x-show="currentTab === 'second'">
+                <p>Second tab</p>
+            </div>
+            <div x-show="currentTab === 'third'">
+                <p>Third tab</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
